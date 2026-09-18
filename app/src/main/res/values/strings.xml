@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">POYH</string>
-    <string name="hello_world">Hello World!</string>
+    <string name="app_title">Put On Your Head</string>
+    <string name="app_subtitle">The Ultimate Party Guessing Game</string>
+    <string name="btn_play">PLAY</string>
+    <string name="btn_settings">SETTINGS</string>
 </resources>
