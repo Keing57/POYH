@@ -4,4 +4,6 @@
     <string name="app_subtitle">The Ultimate Party Guessing Game</string>
     <string name="btn_play">PLAY</string>
     <string name="btn_settings">SETTINGS</string>
+    <string name="title_categories">Choose Category</string>
+    <string name="subtitle_categories">Pick a deck to put on your head</string>
 </resources>
