@@ -1,10 +1,14 @@
 package com.example.poyh
 
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 
 class CategoryAdapter(
     private val categories: List<Category>,
@@ -12,16 +16,23 @@ class CategoryAdapter(
 ) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
     inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvIcon: TextView = itemView.findViewById(R.id.tvCategoryIcon)
-        val tvName: TextView = itemView.findViewById(R.id.tvCategoryName)
-        val tvDescription: TextView = itemView.findViewById(R.id.tvCategoryDescription)
+        private val cardItem: MaterialCardView = itemView.findViewById(R.id.cardCategoryItem)
+        private val iconContainer: FrameLayout = itemView.findViewById(R.id.iconContainer)
+        private val ivIcon: ImageView = itemView.findViewById(R.id.ivCategoryIcon)
+        private val tvName: TextView = itemView.findViewById(R.id.tvCategoryName)
 
         fun bind(category: Category) {
-            tvIcon.text = category.icon
             tvName.text = category.name
-            tvDescription.text = category.description
+            ivIcon.setImageResource(category.iconResId)
 
-            itemView.setOnClickListener {
+            val shape = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(category.backgroundColor)
+            }
+            iconContainer.background = shape
+            cardItem.strokeColor = category.backgroundColor
+
+            cardItem.setOnClickListener {
                 onCategoryClick(category)
             }
         }

@@ -1,5 +1,6 @@
 package com.example.poyh
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.Toast
@@ -21,18 +22,34 @@ class CategoryActivity : AppCompatActivity() {
         val rvCategories = findViewById<RecyclerView>(R.id.rvCategories)
         rvCategories.layoutManager = LinearLayoutManager(this)
 
+        // Hardcoded list of 3 categories
         val categories = listOf(
-            Category("animals", "Animals", "🦁", "Wild beasts, pets, and sea creatures"),
-            Category("movies", "Movies", "🎬", "Hollywood hits, blockbusters, and classics"),
-            Category("jobs", "Jobs", "💼", "Professions, careers, and weird occupations"),
-            Category("celebrities", "Celebrities", "⭐", "Actors, singers, athletes, and icons"),
-            Category("act_it_out", "Act It Out", "🎭", "Fun gestures, mimes, and charades"),
-            Category("food", "Food & Drink", "🍕", "Delicious meals, snacks, and beverages"),
-            Category("gaming", "Video Games", "🎮", "Famous games, characters, and consoles")
+            Category(
+                id = "animals",
+                name = "Animals",
+                iconResId = R.drawable.ic_animals,
+                backgroundColor = Color.parseColor("#6C5CE7")
+            ),
+            Category(
+                id = "movies",
+                name = "Movies",
+                iconResId = R.drawable.ic_movies,
+                backgroundColor = Color.parseColor("#00CEC9")
+            ),
+            Category(
+                id = "jobs",
+                name = "Jobs",
+                iconResId = R.drawable.ic_jobs,
+                backgroundColor = Color.parseColor("#FF7675")
+            )
         )
 
-        rvCategories.adapter = CategoryAdapter(categories) { category ->
-            Toast.makeText(this, "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
+        rvCategories.adapter = CategoryAdapter(categories) { selectedCategory ->
+            Toast.makeText(
+                this,
+                "Category selected: ${selectedCategory.name}",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }
