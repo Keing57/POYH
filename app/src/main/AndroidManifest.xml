@@ -22,6 +22,12 @@
             android:name=".CategoryActivity"
             android:exported="false"
             android:label="@string/title_categories" />
+
+        <activity
+            android:name=".GameActivity"
+            android:exported="false"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

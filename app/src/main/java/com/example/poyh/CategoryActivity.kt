@@ -1,9 +1,9 @@
 package com.example.poyh
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +22,6 @@ class CategoryActivity : AppCompatActivity() {
         val rvCategories = findViewById<RecyclerView>(R.id.rvCategories)
         rvCategories.layoutManager = LinearLayoutManager(this)
 
-        // Hardcoded list of 3 categories
         val categories = listOf(
             Category(
                 id = "animals",
@@ -45,11 +44,11 @@ class CategoryActivity : AppCompatActivity() {
         )
 
         rvCategories.adapter = CategoryAdapter(categories) { selectedCategory ->
-            Toast.makeText(
-                this,
-                "Category selected: ${selectedCategory.name}",
-                Toast.LENGTH_SHORT
-            ).show()
+            val intent = Intent(this, GameActivity::class.java).apply {
+                putExtra(GameActivity.EXTRA_CATEGORY_ID, selectedCategory.id)
+                putExtra(GameActivity.EXTRA_CATEGORY_NAME, selectedCategory.name)
+            }
+            startActivity(intent)
         }
     }
 }
