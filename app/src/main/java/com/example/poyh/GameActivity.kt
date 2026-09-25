@@ -11,6 +11,9 @@ class GameActivity : AppCompatActivity() {
     private lateinit var tvScore: TextView
     private lateinit var tvGameCategory: TextView
 
+    private var wordsList: List<String> = emptyList()
+    private var currentWordIndex = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -20,13 +23,21 @@ class GameActivity : AppCompatActivity() {
         tvScore = findViewById(R.id.tvScore)
         tvGameCategory = findViewById(R.id.tvGameCategory)
 
-        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: "ANIMALS"
+        val categoryId = intent.getStringExtra(EXTRA_CATEGORY_ID) ?: "animals"
+        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: categoryId.uppercase()
         tvGameCategory.text = categoryName
 
-        // Initial default values
+        // Load words from WordRepository
+        wordsList = WordRepository.getShuffledWords(categoryId)
+
         tvScore.text = "0"
         tvTimer.text = "60s"
-        tvWord.text = "READY?"
+
+        if (wordsList.isNotEmpty()) {
+            tvWord.text = wordsList[currentWordIndex]
+        } else {
+            tvWord.text = "READY?"
+        }
     }
 
     companion object {
