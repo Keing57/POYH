@@ -11,7 +11,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var tvScore: TextView
     private lateinit var tvGameCategory: TextView
 
-    private var wordsList: List<String> = emptyList()
+    private var wordsList: MutableList<String> = mutableListOf()
     private var currentWordIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,20 +23,25 @@ class GameActivity : AppCompatActivity() {
         tvScore = findViewById(R.id.tvScore)
         tvGameCategory = findViewById(R.id.tvGameCategory)
 
+        // 1. Read received category
         val categoryId = intent.getStringExtra(EXTRA_CATEGORY_ID) ?: "animals"
-        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: categoryId.uppercase()
+        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: categoryId.replaceFirstChar { it.uppercase() }
         tvGameCategory.text = categoryName
 
-        // Load words from WordRepository
-        wordsList = WordRepository.getShuffledWords(categoryId)
+        // 2. Fetch words from repository and shuffle
+        val rawWords = WordRepository.getWords(categoryId)
+        wordsList = rawWords.shuffled().toMutableList()
 
+        // 3. Initial stats
         tvScore.text = "0"
         tvTimer.text = "60s"
 
+        // 4. Display the very first random (shuffled) word
         if (wordsList.isNotEmpty()) {
+            currentWordIndex = 0
             tvWord.text = wordsList[currentWordIndex]
         } else {
-            tvWord.text = "READY?"
+            tvWord.text = "No words"
         }
     }
 
