@@ -1,10 +1,15 @@
 package com.example.poyh
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var tvWord: TextView
     private lateinit var tvTimer: TextView
@@ -13,6 +18,9 @@ class GameActivity : AppCompatActivity() {
 
     private var wordsList: MutableList<String> = mutableListOf()
     private var currentWordIndex = 0
+
+    private var sensorManager: SensorManager? = null
+    private var accelerometer: Sensor? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,13 +44,37 @@ class GameActivity : AppCompatActivity() {
         tvScore.text = "0"
         tvTimer.text = "60s"
 
-        // 4. Display the very first random (shuffled) word
+        // 4. Display first word
         if (wordsList.isNotEmpty()) {
             currentWordIndex = 0
             tvWord.text = wordsList[currentWordIndex]
         } else {
             tvWord.text = "No words"
         }
+
+        // 5. Initialize SensorManager and Accelerometer
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        accelerometer?.let { sensor ->
+            sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager?.unregisterListener(this)
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        // Accelerometer sensor event values will be processed here
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Handle accuracy changes if necessary
     }
 
     companion object {
