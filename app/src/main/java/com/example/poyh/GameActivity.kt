@@ -99,7 +99,19 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 Log.d(TAG, "PASS")
                 lastActionTime = currentTime
                 hasReturnedToNeutral = false
+                handlePass()
             }
+        }
+    }
+
+    private fun handlePass() {
+        if (wordsList.isNotEmpty()) {
+            currentWordIndex++
+            if (currentWordIndex >= wordsList.size) {
+                // If reached end, wrap around or reshuffle
+                currentWordIndex = 0
+            }
+            tvWord.text = wordsList[currentWordIndex]
         }
     }
 
