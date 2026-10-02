@@ -6,8 +6,10 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import kotlin.math.abs
 
 class GameActivity : AppCompatActivity(), SensorEventListener {
 
@@ -21,6 +23,11 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
+
+    // Cooldown & debounce variables for tilt detection
+    private var lastActionTime: Long = 0L
+    private val actionCooldownMs: Long = 1500L
+    private var hasReturnedToNeutral: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,14 +77,38 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        // Accelerometer sensor event values will be processed here
+        if (event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+
+        val z = event.values[2]
+        val currentTime = System.currentTimeMillis()
+
+        // Reset to neutral when device is upright (|z| < 3.5)
+        if (abs(z) < 3.5f) {
+            hasReturnedToNeutral = true
+        }
+
+        // Detect tilt only if cooldown has passed and device returned to neutral position
+        if (hasReturnedToNeutral && (currentTime - lastActionTime > actionCooldownMs)) {
+            if (z > 7.0f) {
+                // Tilted forward (screen pointing down) -> CORRECT
+                Log.d(TAG, "CORRECT")
+                lastActionTime = currentTime
+                hasReturnedToNeutral = false
+            } else if (z < -7.0f) {
+                // Tilted backward (screen pointing up) -> PASS
+                Log.d(TAG, "PASS")
+                lastActionTime = currentTime
+                hasReturnedToNeutral = false
+            }
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Handle accuracy changes if necessary
+        // Handle accuracy changes if needed
     }
 
     companion object {
+        const val TAG = "POYH_GAME"
         const val EXTRA_CATEGORY_ID = "extra_category_id"
         const val EXTRA_CATEGORY_NAME = "extra_category_name"
     }
