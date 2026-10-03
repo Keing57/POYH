@@ -20,6 +20,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     private var wordsList: MutableList<String> = mutableListOf()
     private var currentWordIndex = 0
+    private var score: Int = 0
 
     private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
@@ -48,7 +49,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         wordsList = rawWords.shuffled().toMutableList()
 
         // 3. Initial stats
-        tvScore.text = "0"
+        score = 0
+        tvScore.text = score.toString()
         tvTimer.text = "60s"
 
         // 4. Display first word
@@ -94,6 +96,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 Log.d(TAG, "CORRECT")
                 lastActionTime = currentTime
                 hasReturnedToNeutral = false
+                handleCorrect()
             } else if (z < -7.0f) {
                 // Tilted backward (screen pointing up) -> PASS
                 Log.d(TAG, "PASS")
@@ -104,11 +107,23 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    private fun handleCorrect() {
+        score++
+        tvScore.text = score.toString()
+
+        if (wordsList.isNotEmpty()) {
+            currentWordIndex++
+            if (currentWordIndex >= wordsList.size) {
+                currentWordIndex = 0
+            }
+            tvWord.text = wordsList[currentWordIndex]
+        }
+    }
+
     private fun handlePass() {
         if (wordsList.isNotEmpty()) {
             currentWordIndex++
             if (currentWordIndex >= wordsList.size) {
-                // If reached end, wrap around or reshuffle
                 currentWordIndex = 0
             }
             tvWord.text = wordsList[currentWordIndex]
