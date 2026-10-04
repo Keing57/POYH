@@ -10,4 +10,6 @@
     <color name="text_secondary">#A0A5C0</color>
     <color name="button_secondary_stroke">#3A3F68</color>
     <color name="button_secondary_bg">#212547</color>
+    <color name="feedback_correct">#2ECC71</color>
+    <color name="feedback_pass">#E74C3C</color>
 </resources>

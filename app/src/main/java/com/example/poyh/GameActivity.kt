@@ -6,13 +6,18 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import kotlin.math.abs
 
 class GameActivity : AppCompatActivity(), SensorEventListener {
 
+    private lateinit var rootLayout: View
     private lateinit var tvWord: TextView
     private lateinit var tvTimer: TextView
     private lateinit var tvScore: TextView
@@ -30,10 +35,15 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private val actionCooldownMs: Long = 1500L
     private var hasReturnedToNeutral: Boolean = true
 
+    // Visual feedback handler
+    private val feedbackHandler = Handler(Looper.getMainLooper())
+    private var resetBackgroundRunnable: Runnable? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
+        rootLayout = findViewById(R.id.gameRootLayout)
         tvWord = findViewById(R.id.tvWord)
         tvTimer = findViewById(R.id.tvTimer)
         tvScore = findViewById(R.id.tvScore)
@@ -76,6 +86,12 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         sensorManager?.unregisterListener(this)
+        resetBackgroundRunnable?.let { feedbackHandler.removeCallbacks(it) }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        resetBackgroundRunnable?.let { feedbackHandler.removeCallbacks(it) }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -111,6 +127,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         score++
         tvScore.text = score.toString()
 
+        flashScreenFeedback(R.color.feedback_correct)
+
         if (wordsList.isNotEmpty()) {
             currentWordIndex++
             if (currentWordIndex >= wordsList.size) {
@@ -121,6 +139,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun handlePass() {
+        flashScreenFeedback(R.color.feedback_pass)
+
         if (wordsList.isNotEmpty()) {
             currentWordIndex++
             if (currentWordIndex >= wordsList.size) {
@@ -128,6 +148,16 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             }
             tvWord.text = wordsList[currentWordIndex]
         }
+    }
+
+    private fun flashScreenFeedback(colorResId: Int) {
+        resetBackgroundRunnable?.let { feedbackHandler.removeCallbacks(it) }
+        rootLayout.setBackgroundColor(ContextCompat.getColor(this, colorResId))
+
+        resetBackgroundRunnable = Runnable {
+            rootLayout.setBackgroundResource(R.drawable.bg_main_gradient)
+        }
+        feedbackHandler.postDelayed(resetBackgroundRunnable!!, 1000L)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
