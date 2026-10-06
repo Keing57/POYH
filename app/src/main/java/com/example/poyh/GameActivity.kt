@@ -6,6 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -38,6 +39,10 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     // Visual feedback handler
     private val feedbackHandler = Handler(Looper.getMainLooper())
     private var resetBackgroundRunnable: Runnable? = null
+
+    // Countdown timer & game status
+    private var countDownTimer: CountDownTimer? = null
+    private var isGameOver: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +79,25 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         // 5. Initialize SensorManager and Accelerometer
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+        // 6. Start 60-second countdown timer
+        startCountdownTimer()
+    }
+
+    private fun startCountdownTimer() {
+        countDownTimer?.cancel()
+        countDownTimer = object : CountDownTimer(60000L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsRemaining = (millisUntilFinished + 500L) / 1000L
+                tvTimer.text = "${secondsRemaining}s"
+            }
+
+            override fun onFinish() {
+                tvTimer.text = "0s"
+                tvWord.text = "TIME'S UP!"
+                isGameOver = true
+            }
+        }.start()
     }
 
     override fun onResume() {
@@ -91,11 +115,12 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        countDownTimer?.cancel()
         resetBackgroundRunnable?.let { feedbackHandler.removeCallbacks(it) }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+        if (isGameOver || event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
 
         val z = event.values[2]
         val currentTime = System.currentTimeMillis()
@@ -124,6 +149,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun handleCorrect() {
+        if (isGameOver) return
         score++
         tvScore.text = score.toString()
 
@@ -139,6 +165,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun handlePass() {
+        if (isGameOver) return
         flashScreenFeedback(R.color.feedback_pass)
 
         if (wordsList.isNotEmpty()) {
