@@ -28,6 +28,11 @@
             android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".ResultActivity"
+            android:exported="false"
+            android:label="@string/game_over_title" />
     </application>
 
 </manifest>

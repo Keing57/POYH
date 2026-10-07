@@ -6,4 +6,7 @@
     <string name="btn_settings">SETTINGS</string>
     <string name="title_categories">Choose Category</string>
     <string name="subtitle_categories">Pick a deck to put on your head</string>
+    <string name="game_over_title">Game Over!</string>
+    <string name="btn_play_again">PLAY AGAIN</string>
+    <string name="btn_main_menu">MAIN MENU</string>
 </resources>
