@@ -1,6 +1,7 @@
 package com.example.poyh
 
 import android.content.Context
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -27,6 +28,9 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var wordsList: MutableList<String> = mutableListOf()
     private var currentWordIndex = 0
     private var score: Int = 0
+
+    private var categoryId: String = "animals"
+    private var categoryName: String = "Animals"
 
     private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
@@ -55,8 +59,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         tvGameCategory = findViewById(R.id.tvGameCategory)
 
         // 1. Read received category
-        val categoryId = intent.getStringExtra(EXTRA_CATEGORY_ID) ?: "animals"
-        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: categoryId.replaceFirstChar { it.uppercase() }
+        categoryId = intent.getStringExtra(EXTRA_CATEGORY_ID) ?: "animals"
+        categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: categoryId.replaceFirstChar { it.uppercase() }
         tvGameCategory.text = categoryName
 
         // 2. Fetch words from repository and shuffle
@@ -96,14 +100,32 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 tvTimer.text = "0s"
                 tvWord.text = "TIME'S UP!"
                 isGameOver = true
+
+                // Block sensor input
+                sensorManager?.unregisterListener(this@GameActivity)
+
+                // Wait 2 seconds so user sees "TIME'S UP!", then transition to ResultActivity
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (!isFinishing) {
+                        val intent = Intent(this@GameActivity, ResultActivity::class.java).apply {
+                            putExtra(ResultActivity.EXTRA_SCORE, score)
+                            putExtra(ResultActivity.EXTRA_CATEGORY_ID, categoryId)
+                            putExtra(ResultActivity.EXTRA_CATEGORY_NAME, categoryName)
+                        }
+                        startActivity(intent)
+                        finish()
+                    }
+                }, 2000L)
             }
         }.start()
     }
 
     override fun onResume() {
         super.onResume()
-        accelerometer?.let { sensor ->
-            sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+        if (!isGameOver) {
+            accelerometer?.let { sensor ->
+                sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+            }
         }
     }
 
