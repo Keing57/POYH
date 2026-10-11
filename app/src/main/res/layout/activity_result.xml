@@ -6,24 +6,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_main_gradient"
-    android:padding="24dp"
+    android:paddingStart="20dp"
+    android:paddingTop="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="16dp"
     tools:context=".ResultActivity">
 
-    <!-- Center Card with Score Details -->
+    <!-- Top Score Summary Header Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardScoreSummary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         app:cardBackgroundColor="@color/surface"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnPlayAgain"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4"
         app:strokeColor="@color/button_secondary_stroke"
         app:strokeWidth="1.5dp">
 
@@ -32,59 +31,82 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="32dp">
-
-            <TextView
-                android:id="@+id/tvTrophyEmoji"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🏆"
-                android:textSize="56sp" />
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/tvGameOverHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:fontFamily="sans-serif-black"
                 android:letterSpacing="0.05"
                 android:text="@string/game_over_title"
                 android:textColor="@color/text_primary"
-                android:textSize="28sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
+            <!-- Your Score: X -->
             <TextView
                 android:id="@+id/tvScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="6dp"
                 android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.04"
+                android:letterSpacing="0.03"
                 android:textColor="@color/accent"
-                android:textSize="36sp"
+                android:textSize="28sp"
                 android:textStyle="bold"
-                tools:text="Your Score: 12" />
+                tools:text="Your Score: 8" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <!-- Label for word breakdown -->
+    <TextView
+        android:id="@+id/tvBreakdownLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.06"
+        android:text="ROUND BREAKDOWN"
+        android:textAllCaps="true"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardScoreSummary" />
+
+    <!-- RecyclerView listing all words with checkmark or X -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvWordResults"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/btnPlayAgain"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvBreakdownLabel"
+        tools:listitem="@layout/item_word_result" />
 
     <!-- Play Again Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnPlayAgain"
         android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="12dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:backgroundTint="@color/primary"
-        android:elevation="6dp"
+        android:elevation="4dp"
         android:fontFamily="sans-serif-bold"
-        android:letterSpacing="0.1"
+        android:letterSpacing="0.08"
         android:text="@string/btn_play_again"
         android:textAllCaps="true"
         android:textColor="@color/text_primary"
-        android:textSize="16sp"
-        app:cornerRadius="30dp"
+        android:textSize="15sp"
+        app:cornerRadius="28dp"
         app:layout_constraintBottom_toTopOf="@+id/btnMainMenu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -93,18 +115,18 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnMainMenu"
         android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:backgroundTint="@color/button_secondary_bg"
         android:fontFamily="sans-serif-medium"
-        android:letterSpacing="0.08"
+        android:letterSpacing="0.06"
         android:text="@string/btn_main_menu"
         android:textAllCaps="true"
         android:textColor="@color/text_primary"
-        android:textSize="15sp"
-        app:cornerRadius="28dp"
+        android:textSize="14sp"
+        app:cornerRadius="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

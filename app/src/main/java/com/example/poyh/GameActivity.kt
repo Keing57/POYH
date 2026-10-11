@@ -29,6 +29,9 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var currentWordIndex = 0
     private var score: Int = 0
 
+    // Record words and whether guessed or passed
+    private val wordResultsList: ArrayList<WordResult> = ArrayList()
+
     private var categoryId: String = "animals"
     private var categoryName: String = "Animals"
 
@@ -111,6 +114,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                             putExtra(ResultActivity.EXTRA_SCORE, score)
                             putExtra(ResultActivity.EXTRA_CATEGORY_ID, categoryId)
                             putExtra(ResultActivity.EXTRA_CATEGORY_NAME, categoryName)
+                            putExtra(ResultActivity.EXTRA_WORD_RESULTS, wordResultsList)
                         }
                         startActivity(intent)
                         finish()
@@ -178,6 +182,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         flashScreenFeedback(R.color.feedback_correct)
 
         if (wordsList.isNotEmpty()) {
+            wordResultsList.add(WordResult(wordsList[currentWordIndex], isGuessed = true))
             currentWordIndex++
             if (currentWordIndex >= wordsList.size) {
                 currentWordIndex = 0
@@ -191,6 +196,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         flashScreenFeedback(R.color.feedback_pass)
 
         if (wordsList.isNotEmpty()) {
+            wordResultsList.add(WordResult(wordsList[currentWordIndex], isGuessed = false))
             currentWordIndex++
             if (currentWordIndex >= wordsList.size) {
                 currentWordIndex = 0
