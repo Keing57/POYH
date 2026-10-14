@@ -20,8 +20,6 @@ class ResultActivity : AppCompatActivity() {
         val rvWordResults = findViewById<RecyclerView>(R.id.rvWordResults)
 
         val score = intent.getIntExtra(EXTRA_SCORE, 0)
-        val categoryId = intent.getStringExtra(EXTRA_CATEGORY_ID) ?: "animals"
-        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: "Animals"
 
         // Display: "Your Score: X"
         tvScore.text = "Your Score: $score"
@@ -33,18 +31,19 @@ class ResultActivity : AppCompatActivity() {
         rvWordResults.layoutManager = LinearLayoutManager(this)
         rvWordResults.adapter = WordResultAdapter(wordResults)
 
+        // "Play Again" navigates back to CategoryActivity
         btnPlayAgain.setOnClickListener {
-            val intent = Intent(this, GameActivity::class.java).apply {
-                putExtra(GameActivity.EXTRA_CATEGORY_ID, categoryId)
-                putExtra(GameActivity.EXTRA_CATEGORY_NAME, categoryName)
+            val intent = Intent(this, CategoryActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
             startActivity(intent)
             finish()
         }
 
+        // "Main Menu" navigates back to MainActivity clearing the entire Activity stack
         btnMainMenu.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
             startActivity(intent)
             finish()
