@@ -47,8 +47,10 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private val feedbackHandler = Handler(Looper.getMainLooper())
     private var resetBackgroundRunnable: Runnable? = null
 
-    // Countdown timer & game status
+    // Timers & game status
+    private var getReadyTimer: CountDownTimer? = null
     private var countDownTimer: CountDownTimer? = null
+    private var isGameActive: Boolean = false
     private var isGameOver: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,20 +77,41 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         tvScore.text = score.toString()
         tvTimer.text = "60s"
 
-        // 4. Display first word
-        if (wordsList.isNotEmpty()) {
-            currentWordIndex = 0
-            tvWord.text = wordsList[currentWordIndex]
-        } else {
-            tvWord.text = "No words"
-        }
-
-        // 5. Initialize SensorManager and Accelerometer
+        // 4. Initialize SensorManager and Accelerometer
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-        // 6. Start 60-second countdown timer
-        startCountdownTimer()
+        // 5. Start 3.. 2.. 1.. Get Ready countdown before starting main game
+        startGetReadyCountdown()
+    }
+
+    private fun startGetReadyCountdown() {
+        isGameActive = false
+        tvWord.text = "3"
+
+        getReadyTimer?.cancel()
+        getReadyTimer = object : CountDownTimer(3500L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                val seconds = (millisUntilFinished / 1000L).toInt()
+                if (seconds in 1..3) {
+                    tvWord.text = seconds.toString()
+                }
+            }
+
+            override fun onFinish() {
+                // Countdown finished: display first word and activate game
+                isGameActive = true
+                if (wordsList.isNotEmpty()) {
+                    currentWordIndex = 0
+                    tvWord.text = wordsList[currentWordIndex]
+                } else {
+                    tvWord.text = "No words"
+                }
+
+                // Start main 60-second game timer
+                startCountdownTimer()
+            }
+        }.start()
     }
 
     private fun startCountdownTimer() {
@@ -102,6 +125,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             override fun onFinish() {
                 tvTimer.text = "0s"
                 tvWord.text = "TIME'S UP!"
+                isGameActive = false
                 isGameOver = true
 
                 // Block sensor input
@@ -141,12 +165,13 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        getReadyTimer?.cancel()
         countDownTimer?.cancel()
         resetBackgroundRunnable?.let { feedbackHandler.removeCallbacks(it) }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (isGameOver || event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+        if (!isGameActive || isGameOver || event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
 
         val z = event.values[2]
         val currentTime = System.currentTimeMillis()
@@ -175,7 +200,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun handleCorrect() {
-        if (isGameOver) return
+        if (!isGameActive || isGameOver) return
         score++
         tvScore.text = score.toString()
 
@@ -192,7 +217,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun handlePass() {
-        if (isGameOver) return
+        if (!isGameActive || isGameOver) return
         flashScreenFeedback(R.color.feedback_pass)
 
         if (wordsList.isNotEmpty()) {
