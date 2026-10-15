@@ -22,6 +22,7 @@ class CategoryActivity : AppCompatActivity() {
         val rvCategories = findViewById<RecyclerView>(R.id.rvCategories)
         rvCategories.layoutManager = LinearLayoutManager(this)
 
+        // Expanded list of categories with descriptive vector icons
         val categories = listOf(
             Category(
                 id = "animals",
@@ -40,6 +41,24 @@ class CategoryActivity : AppCompatActivity() {
                 name = "Jobs",
                 iconResId = R.drawable.ic_jobs,
                 backgroundColor = Color.parseColor("#FF7675")
+            ),
+            Category(
+                id = "brands",
+                name = "Brands",
+                iconResId = R.drawable.ic_brands,
+                backgroundColor = Color.parseColor("#FD79A8")
+            ),
+            Category(
+                id = "singers",
+                name = "Singers",
+                iconResId = R.drawable.ic_singers,
+                backgroundColor = Color.parseColor("#FDCB6E")
+            ),
+            Category(
+                id = "countries",
+                name = "Countries",
+                iconResId = R.drawable.ic_countries,
+                backgroundColor = Color.parseColor("#0984E3")
             )
         )
 
