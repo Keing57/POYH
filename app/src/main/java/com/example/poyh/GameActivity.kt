@@ -6,6 +6,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -29,7 +31,6 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var currentWordIndex = 0
     private var score: Int = 0
 
-    // Record words and whether guessed or passed
     private val wordResultsList: ArrayList<WordResult> = ArrayList()
 
     private var categoryId: String = "animals"
@@ -38,20 +39,21 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
 
-    // Cooldown & debounce variables for tilt detection
     private var lastActionTime: Long = 0L
     private val actionCooldownMs: Long = 1500L
     private var hasReturnedToNeutral: Boolean = true
 
-    // Visual feedback handler
     private val feedbackHandler = Handler(Looper.getMainLooper())
     private var resetBackgroundRunnable: Runnable? = null
 
-    // Timers & game status
     private var getReadyTimer: CountDownTimer? = null
     private var countDownTimer: CountDownTimer? = null
     private var isGameActive: Boolean = false
     private var isGameOver: Boolean = false
+
+    private var soundPool: SoundPool? = null
+    private var soundDingId: Int = 0
+    private var soundBuzzId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,26 +65,50 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         tvScore = findViewById(R.id.tvScore)
         tvGameCategory = findViewById(R.id.tvGameCategory)
 
-        // 1. Read received category
         categoryId = intent.getStringExtra(EXTRA_CATEGORY_ID) ?: "animals"
         categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: categoryId.replaceFirstChar { it.uppercase() }
         tvGameCategory.text = categoryName
 
-        // 2. Fetch words from repository and shuffle
         val rawWords = WordRepository.getWords(categoryId)
         wordsList = rawWords.shuffled().toMutableList()
 
-        // 3. Initial stats
         score = 0
         tvScore.text = score.toString()
         tvTimer.text = "60s"
 
-        // 4. Initialize SensorManager and Accelerometer
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-        // 5. Start 3.. 2.. 1.. Get Ready countdown before starting main game
+        initSoundPool()
+
         startGetReadyCountdown()
+    }
+
+    private fun initSoundPool() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        soundDingId = soundPool?.load(this, R.raw.ding, 1) ?: 0
+        soundBuzzId = soundPool?.load(this, R.raw.buzz, 1) ?: 0
+    }
+
+    private fun playSoundDing() {
+        if (soundDingId != 0) {
+            soundPool?.play(soundDingId, 1.0f, 1.0f, 0, 0, 1.0f)
+        }
+    }
+
+    private fun playSoundBuzz() {
+        if (soundBuzzId != 0) {
+            soundPool?.play(soundBuzzId, 1.0f, 1.0f, 0, 0, 1.0f)
+        }
     }
 
     private fun startGetReadyCountdown() {
@@ -99,7 +125,6 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             }
 
             override fun onFinish() {
-                // Countdown finished: display first word and activate game
                 isGameActive = true
                 if (wordsList.isNotEmpty()) {
                     currentWordIndex = 0
@@ -108,7 +133,6 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     tvWord.text = "No words"
                 }
 
-                // Start main 60-second game timer
                 startCountdownTimer()
             }
         }.start()
@@ -128,10 +152,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 isGameActive = false
                 isGameOver = true
 
-                // Block sensor input
                 sensorManager?.unregisterListener(this@GameActivity)
 
-                // Wait 2 seconds so user sees "TIME'S UP!", then transition to ResultActivity
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (!isFinishing) {
                         val intent = Intent(this@GameActivity, ResultActivity::class.java).apply {
@@ -168,6 +190,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         getReadyTimer?.cancel()
         countDownTimer?.cancel()
         resetBackgroundRunnable?.let { feedbackHandler.removeCallbacks(it) }
+        soundPool?.release()
+        soundPool = null
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -176,21 +200,17 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         val z = event.values[2]
         val currentTime = System.currentTimeMillis()
 
-        // Reset to neutral when device is upright (|z| < 3.5)
         if (abs(z) < 3.5f) {
             hasReturnedToNeutral = true
         }
 
-        // Detect tilt only if cooldown has passed and device returned to neutral position
         if (hasReturnedToNeutral && (currentTime - lastActionTime > actionCooldownMs)) {
             if (z > 7.0f) {
-                // Tilted forward (screen pointing down) -> CORRECT
                 Log.d(TAG, "CORRECT")
                 lastActionTime = currentTime
                 hasReturnedToNeutral = false
                 handleCorrect()
             } else if (z < -7.0f) {
-                // Tilted backward (screen pointing up) -> PASS
                 Log.d(TAG, "PASS")
                 lastActionTime = currentTime
                 hasReturnedToNeutral = false
@@ -204,6 +224,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         score++
         tvScore.text = score.toString()
 
+        playSoundDing()
         flashScreenFeedback(R.color.feedback_correct)
 
         if (wordsList.isNotEmpty()) {
@@ -218,6 +239,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     private fun handlePass() {
         if (!isGameActive || isGameOver) return
+
+        playSoundBuzz()
         flashScreenFeedback(R.color.feedback_pass)
 
         if (wordsList.isNotEmpty()) {
@@ -241,7 +264,6 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Handle accuracy changes if needed
     }
 
     companion object {
