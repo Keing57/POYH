@@ -2,7 +2,6 @@ package com.example.poyh
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 
@@ -20,7 +19,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnSettings.setOnClickListener {
-            Toast.makeText(this, "Opening Settings...", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 }
