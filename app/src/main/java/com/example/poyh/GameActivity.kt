@@ -2,6 +2,7 @@ package com.example.poyh
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -61,9 +62,15 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     private var vibrator: Vibrator? = null
 
+    private var isSoundEnabled: Boolean = true
+    private var isVibrationEnabled: Boolean = true
+    private var roundDuration: Int = 60
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
+
+        loadPreferences()
 
         rootLayout = findViewById(R.id.gameRootLayout)
         tvWord = findViewById(R.id.tvWord)
@@ -80,7 +87,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
         score = 0
         tvScore.text = score.toString()
-        tvTimer.text = "60s"
+        tvTimer.text = "${roundDuration}s"
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -89,6 +96,13 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         initSoundPool()
 
         startGetReadyCountdown()
+    }
+
+    private fun loadPreferences() {
+        val prefs: SharedPreferences = getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        isSoundEnabled = prefs.getBoolean(SettingsActivity.KEY_SOUND_ENABLED, true)
+        isVibrationEnabled = prefs.getBoolean(SettingsActivity.KEY_VIBRATION_ENABLED, true)
+        roundDuration = prefs.getInt(SettingsActivity.KEY_ROUND_DURATION, 60)
     }
 
     private fun initVibrator() {
@@ -102,6 +116,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun vibrateCorrect() {
+        if (!isVibrationEnabled) return
         if (vibrator?.hasVibrator() == true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator?.vibrate(VibrationEffect.createOneShot(100L, VibrationEffect.DEFAULT_AMPLITUDE))
@@ -113,6 +128,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun vibratePass() {
+        if (!isVibrationEnabled) return
         if (vibrator?.hasVibrator() == true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator?.vibrate(VibrationEffect.createOneShot(400L, VibrationEffect.DEFAULT_AMPLITUDE))
@@ -139,12 +155,14 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun playSoundDing() {
+        if (!isSoundEnabled) return
         if (soundDingId != 0) {
             soundPool?.play(soundDingId, 1.0f, 1.0f, 0, 0, 1.0f)
         }
     }
 
     private fun playSoundBuzz() {
+        if (!isSoundEnabled) return
         if (soundBuzzId != 0) {
             soundPool?.play(soundBuzzId, 1.0f, 1.0f, 0, 0, 1.0f)
         }
@@ -179,7 +197,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     private fun startCountdownTimer() {
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(60000L, 1000L) {
+        countDownTimer = object : CountDownTimer((roundDuration * 1000).toLong(), 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsRemaining = (millisUntilFinished + 500L) / 1000L
                 tvTimer.text = "${secondsRemaining}s"
