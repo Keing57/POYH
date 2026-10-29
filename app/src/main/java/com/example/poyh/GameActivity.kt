@@ -59,6 +59,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var soundPool: SoundPool? = null
     private var soundDingId: Int = 0
     private var soundBuzzId: Int = 0
+    private var soundTickId: Int = 0
 
     private var vibrator: Vibrator? = null
 
@@ -146,12 +147,13 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             .build()
 
         soundPool = SoundPool.Builder()
-            .setMaxStreams(2)
+            .setMaxStreams(3)
             .setAudioAttributes(audioAttributes)
             .build()
 
         soundDingId = soundPool?.load(this, R.raw.ding, 1) ?: 0
         soundBuzzId = soundPool?.load(this, R.raw.buzz, 1) ?: 0
+        soundTickId = soundPool?.load(this, R.raw.tick, 1) ?: 0
     }
 
     private fun playSoundDing() {
@@ -165,6 +167,13 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         if (!isSoundEnabled) return
         if (soundBuzzId != 0) {
             soundPool?.play(soundBuzzId, 1.0f, 1.0f, 0, 0, 1.0f)
+        }
+    }
+
+    private fun playSoundTick() {
+        if (!isSoundEnabled) return
+        if (soundTickId != 0) {
+            soundPool?.play(soundTickId, 1.0f, 1.0f, 0, 0, 1.0f)
         }
     }
 
@@ -201,6 +210,9 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsRemaining = (millisUntilFinished + 500L) / 1000L
                 tvTimer.text = "${secondsRemaining}s"
+                if (secondsRemaining in 1..10) {
+                    playSoundTick()
+                }
             }
 
             override fun onFinish() {
