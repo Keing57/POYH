@@ -55,6 +55,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var countDownTimer: CountDownTimer? = null
     private var isGameActive: Boolean = false
     private var isGameOver: Boolean = false
+    private var isPaused: Boolean = false
+    private var remainingTimeMillis: Long = 60000L
 
     private var soundPool: SoundPool? = null
     private var soundDingId: Int = 0
@@ -89,14 +91,35 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         score = 0
         tvScore.text = score.toString()
         tvTimer.text = "${roundDuration}s"
+        remainingTimeMillis = (roundDuration * 1000).toLong()
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+        rootLayout.setOnClickListener {
+            togglePause()
+        }
 
         initVibrator()
         initSoundPool()
 
         startGetReadyCountdown()
+    }
+
+    private fun togglePause() {
+        if (!isGameActive || isGameOver) return
+
+        if (!isPaused) {
+            isPaused = true
+            countDownTimer?.cancel()
+            tvWord.text = "PAUSED - TAP TO RESUME"
+        } else {
+            isPaused = false
+            if (wordsList.isNotEmpty()) {
+                tvWord.text = wordsList[currentWordIndex]
+            }
+            startCountdownTimer(remainingTimeMillis)
+        }
     }
 
     private fun loadPreferences() {
@@ -179,6 +202,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     private fun startGetReadyCountdown() {
         isGameActive = false
+        isPaused = false
         tvWord.text = "3"
 
         getReadyTimer?.cancel()
@@ -199,15 +223,17 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     tvWord.text = "No words"
                 }
 
-                startCountdownTimer()
+                startCountdownTimer((roundDuration * 1000).toLong())
             }
         }.start()
     }
 
-    private fun startCountdownTimer() {
+    private fun startCountdownTimer(durationMillis: Long) {
+        remainingTimeMillis = durationMillis
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer((roundDuration * 1000).toLong(), 1000L) {
+        countDownTimer = object : CountDownTimer(durationMillis, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
+                remainingTimeMillis = millisUntilFinished
                 val secondsRemaining = (millisUntilFinished + 500L) / 1000L
                 tvTimer.text = "${secondsRemaining}s"
                 if (secondsRemaining in 1..10) {
@@ -220,6 +246,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 tvWord.text = "TIME'S UP!"
                 isGameActive = false
                 isGameOver = true
+                isPaused = false
 
                 sensorManager?.unregisterListener(this@GameActivity)
 
@@ -241,7 +268,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
-        if (!isGameOver) {
+        if (!isGameOver && !isPaused) {
             accelerometer?.let { sensor ->
                 sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
             }
@@ -264,7 +291,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (!isGameActive || isGameOver || event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+        if (!isGameActive || isGameOver || isPaused || event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
 
         val z = event.values[2]
         val currentTime = System.currentTimeMillis()
@@ -289,7 +316,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun handleCorrect() {
-        if (!isGameActive || isGameOver) return
+        if (!isGameActive || isGameOver || isPaused) return
         score++
         tvScore.text = score.toString()
 
@@ -308,7 +335,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun handlePass() {
-        if (!isGameActive || isGameOver) return
+        if (!isGameActive || isGameOver || isPaused) return
 
         vibratePass()
         playSoundBuzz()
