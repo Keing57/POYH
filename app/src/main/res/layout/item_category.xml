@@ -8,10 +8,9 @@
     android:layout_marginBottom="16dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardBackgroundColor="@color/surface"
+    app:cardBackgroundColor="@android:color/transparent"
     app:cardCornerRadius="20dp"
     app:cardElevation="6dp"
-    app:rippleColor="@color/primary_light"
     app:strokeColor="@color/button_secondary_stroke"
     app:strokeWidth="1.5dp">
 
@@ -19,9 +18,9 @@
         android:id="@+id/cardInnerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_card_category"
         android:padding="20dp">
 
-        <!-- Icon Container with custom category background color -->
         <FrameLayout
             android:id="@+id/iconContainer"
             android:layout_width="56dp"
@@ -41,7 +40,6 @@
                 tools:src="@drawable/ic_animals" />
         </FrameLayout>
 
-        <!-- Category Title -->
         <TextView
             android:id="@+id/tvCategoryName"
             android:layout_width="0dp"
@@ -57,7 +55,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Animals" />
 
-        <!-- Chevron / Arrow indicator -->
         <TextView
             android:id="@+id/ivArrow"
             android:layout_width="wrap_content"
