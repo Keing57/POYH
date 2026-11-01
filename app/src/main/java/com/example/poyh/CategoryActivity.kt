@@ -22,7 +22,6 @@ class CategoryActivity : AppCompatActivity() {
         val rvCategories = findViewById<RecyclerView>(R.id.rvCategories)
         rvCategories.layoutManager = LinearLayoutManager(this)
 
-        // Expanded list of categories with descriptive vector icons
         val categories = listOf(
             Category(
                 id = "animals",

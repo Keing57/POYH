@@ -21,17 +21,14 @@ class ResultActivity : AppCompatActivity() {
 
         val score = intent.getIntExtra(EXTRA_SCORE, 0)
 
-        // Display: "Your Score: X"
         tvScore.text = "Your Score: $score"
 
-        // Read and populate word results
         @Suppress("UNCHECKED_CAST")
         val wordResults = (intent.getSerializableExtra(EXTRA_WORD_RESULTS) as? ArrayList<WordResult>) ?: arrayListOf()
 
         rvWordResults.layoutManager = LinearLayoutManager(this)
         rvWordResults.adapter = WordResultAdapter(wordResults)
 
-        // "Play Again" navigates back to CategoryActivity
         btnPlayAgain.setOnClickListener {
             val intent = Intent(this, CategoryActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -40,7 +37,6 @@ class ResultActivity : AppCompatActivity() {
             finish()
         }
 
-        // "Main Menu" navigates back to MainActivity clearing the entire Activity stack
         btnMainMenu.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

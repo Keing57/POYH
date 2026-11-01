@@ -10,7 +10,6 @@
     android:padding="24dp"
     tools:context=".GameActivity">
 
-    <!-- Top Left: Score Container -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardScore"
         android:layout_width="wrap_content"
@@ -60,7 +59,6 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Top Center: Category Name Display -->
     <TextView
         android:id="@+id/tvGameCategory"
         android:layout_width="wrap_content"
@@ -76,7 +74,6 @@
         app:layout_constraintTop_toTopOf="@+id/cardScore"
         tools:text="ANIMALS" />
 
-    <!-- Top Right: Timer Container -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardTimer"
         android:layout_width="wrap_content"
@@ -117,7 +114,6 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Center: Huge Word Display -->
     <TextView
         android:id="@+id/tvWord"
         android:layout_width="0dp"
@@ -138,7 +134,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="LION" />
 
-    <!-- Bottom Hint / Guide -->
     <TextView
         android:id="@+id/tvTiltHint"
         android:layout_width="wrap_content"

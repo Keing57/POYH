@@ -19,6 +19,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -200,10 +201,16 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    private fun playBounceFadeAnimation() {
+        val anim = AnimationUtils.loadAnimation(this, R.anim.bounce_fade_in)
+        tvWord.startAnimation(anim)
+    }
+
     private fun startGetReadyCountdown() {
         isGameActive = false
         isPaused = false
         tvWord.text = "3"
+        playBounceFadeAnimation()
 
         getReadyTimer?.cancel()
         getReadyTimer = object : CountDownTimer(3500L, 1000L) {
@@ -211,6 +218,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 val seconds = (millisUntilFinished / 1000L).toInt()
                 if (seconds in 1..3) {
                     tvWord.text = seconds.toString()
+                    playBounceFadeAnimation()
                 }
             }
 

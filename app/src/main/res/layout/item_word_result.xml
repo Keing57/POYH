@@ -19,7 +19,6 @@
         android:paddingEnd="20dp"
         android:paddingBottom="14dp">
 
-        <!-- Word Text -->
         <TextView
             android:id="@+id/tvResultWord"
             android:layout_width="0dp"
@@ -33,7 +32,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Elephant" />
 
-        <!-- Status Icon Container (Green Checkmark or Red X) -->
         <FrameLayout
             android:id="@+id/statusContainer"
             android:layout_width="34dp"
