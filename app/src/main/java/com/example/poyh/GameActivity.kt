@@ -108,7 +108,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun togglePause() {
-        if (!isGameActive || isGameOver) return
+        if (!isGameActive || isGameOver || isPaused) return
 
         if (!isPaused) {
             isPaused = true
@@ -206,6 +206,11 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         tvWord.startAnimation(anim)
     }
 
+    private fun playWordTransitionAnimation() {
+        val anim = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom)
+        tvWord.startAnimation(anim)
+    }
+
     private fun startGetReadyCountdown() {
         isGameActive = false
         isPaused = false
@@ -227,6 +232,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 if (wordsList.isNotEmpty()) {
                     currentWordIndex = 0
                     tvWord.text = wordsList[currentWordIndex]
+                    playWordTransitionAnimation()
                 } else {
                     tvWord.text = "No words"
                 }
@@ -339,6 +345,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 currentWordIndex = 0
             }
             tvWord.text = wordsList[currentWordIndex]
+            playWordTransitionAnimation()
         }
     }
 
@@ -356,6 +363,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 currentWordIndex = 0
             }
             tvWord.text = wordsList[currentWordIndex]
+            playWordTransitionAnimation()
         }
     }
 
