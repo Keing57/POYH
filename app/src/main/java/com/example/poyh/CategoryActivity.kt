@@ -7,6 +7,7 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class CategoryActivity : AppCompatActivity() {
 
@@ -17,6 +18,12 @@ class CategoryActivity : AppCompatActivity() {
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener {
             finish()
+        }
+
+        val fabAddCategory = findViewById<FloatingActionButton>(R.id.fabAddCategory)
+        fabAddCategory.setOnClickListener {
+            val intent = Intent(this, CustomCategoryActivity::class.java)
+            startActivity(intent)
         }
 
         val rvCategories = findViewById<RecyclerView>(R.id.rvCategories)
