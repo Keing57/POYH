@@ -1,5 +1,7 @@
 package com.example.poyh
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import android.widget.ImageButton
@@ -10,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import org.json.JSONArray
+import org.json.JSONObject
 
 class CustomCategoryActivity : AppCompatActivity() {
 
@@ -32,6 +36,7 @@ class CustomCategoryActivity : AppCompatActivity() {
         etWordInput = findViewById(R.id.etWordInput)
         tvWordCount = findViewById(R.id.tvWordCount)
         val btnAddWord = findViewById<MaterialButton>(R.id.btnAddWord)
+        val btnSaveCategory = findViewById<MaterialButton>(R.id.btnSaveCategory)
         val rvCustomWords = findViewById<RecyclerView>(R.id.rvCustomWords)
 
         adapter = CustomWordAdapter(wordsList) { position ->
@@ -56,6 +61,10 @@ class CustomCategoryActivity : AppCompatActivity() {
             }
         }
 
+        btnSaveCategory.setOnClickListener {
+            saveCategoryAndFinish()
+        }
+
         updateWordCount()
     }
 
@@ -74,5 +83,48 @@ class CustomCategoryActivity : AppCompatActivity() {
 
     private fun updateWordCount() {
         tvWordCount.text = "Words (${wordsList.size})"
+    }
+
+    private fun saveCategoryAndFinish() {
+        val deckName = etDeckName.text?.toString()?.trim().orEmpty()
+        if (deckName.isEmpty()) {
+            Toast.makeText(this, "Please enter a deck name", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (wordsList.isEmpty()) {
+            Toast.makeText(this, "Please add at least one word", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val prefs: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val rawJson = prefs.getString(KEY_CUSTOM_CATEGORIES, "[]") ?: "[]"
+        val jsonArray = try {
+            JSONArray(rawJson)
+        } catch (e: Exception) {
+            JSONArray()
+        }
+
+        val newCategoryObj = JSONObject().apply {
+            put("id", "custom_${System.currentTimeMillis()}")
+            put("name", deckName)
+            val wordsArray = JSONArray()
+            for (word in wordsList) {
+                wordsArray.put(word)
+            }
+            put("words", wordsArray)
+        }
+
+        jsonArray.put(newCategoryObj)
+
+        prefs.edit().putString(KEY_CUSTOM_CATEGORIES, jsonArray.toString()).apply()
+
+        Toast.makeText(this, "Category saved successfully!", Toast.LENGTH_SHORT).show()
+        finish()
+    }
+
+    companion object {
+        const val PREFS_NAME = "poyh_custom_categories"
+        const val KEY_CUSTOM_CATEGORIES = "custom_categories_json"
     }
 }

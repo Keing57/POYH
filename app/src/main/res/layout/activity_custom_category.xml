@@ -136,13 +136,30 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
         android:clipToPadding="false"
-        android:paddingBottom="12dp"
+        android:paddingBottom="8dp"
         android:scrollbars="none"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnSaveCategory"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvWordCount"
         tools:listitem="@layout/item_custom_word" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveCategory"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_button_primary"
+        android:fontFamily="sans-serif-bold"
+        android:text="Save Category"
+        android:textAllCaps="false"
+        android:textColor="@color/text_primary"
+        android:textSize="17sp"
+        app:backgroundTint="@null"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
