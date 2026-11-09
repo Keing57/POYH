@@ -7,5 +7,6 @@ data class Category(
     val id: String,
     val name: String,
     @DrawableRes val iconResId: Int,
-    @ColorInt val backgroundColor: Int
+    @ColorInt val backgroundColor: Int,
+    val customWords: ArrayList<String>? = null
 )

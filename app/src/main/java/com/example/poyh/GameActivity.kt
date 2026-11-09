@@ -86,7 +86,12 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME) ?: categoryId.replaceFirstChar { it.uppercase() }
         tvGameCategory.text = categoryName
 
-        val rawWords = WordRepository.getWords(categoryId)
+        val customWords = intent.getStringArrayListExtra(EXTRA_CUSTOM_WORDS)
+        val rawWords = if (!customWords.isNullOrEmpty()) {
+            customWords
+        } else {
+            WordRepository.getWords(categoryId)
+        }
         wordsList = rawWords.shuffled().toMutableList()
 
         score = 0
@@ -384,5 +389,6 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         const val TAG = "POYH_GAME"
         const val EXTRA_CATEGORY_ID = "extra_category_id"
         const val EXTRA_CATEGORY_NAME = "extra_category_name"
+        const val EXTRA_CUSTOM_WORDS = "extra_custom_words"
     }
 }

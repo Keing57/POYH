@@ -1,5 +1,6 @@
 package com.example.poyh
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -8,8 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.json.JSONArray
 
 class CategoryActivity : AppCompatActivity() {
+
+    private lateinit var rvCategories: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,10 +30,33 @@ class CategoryActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val rvCategories = findViewById<RecyclerView>(R.id.rvCategories)
+        rvCategories = findViewById(R.id.rvCategories)
         rvCategories.layoutManager = LinearLayoutManager(this)
 
-        val categories = listOf(
+        updateCategoriesList()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateCategoriesList()
+    }
+
+    private fun updateCategoriesList() {
+        val categories = loadCategories()
+        rvCategories.adapter = CategoryAdapter(categories) { selectedCategory ->
+            val intent = Intent(this, GameActivity::class.java).apply {
+                putExtra(GameActivity.EXTRA_CATEGORY_ID, selectedCategory.id)
+                putExtra(GameActivity.EXTRA_CATEGORY_NAME, selectedCategory.name)
+                if (selectedCategory.customWords != null) {
+                    putStringArrayListExtra(GameActivity.EXTRA_CUSTOM_WORDS, selectedCategory.customWords)
+                }
+            }
+            startActivity(intent)
+        }
+    }
+
+    private fun loadCategories(): List<Category> {
+        val categories = mutableListOf(
             Category(
                 id = "animals",
                 name = "Animals",
@@ -68,12 +95,45 @@ class CategoryActivity : AppCompatActivity() {
             )
         )
 
-        rvCategories.adapter = CategoryAdapter(categories) { selectedCategory ->
-            val intent = Intent(this, GameActivity::class.java).apply {
-                putExtra(GameActivity.EXTRA_CATEGORY_ID, selectedCategory.id)
-                putExtra(GameActivity.EXTRA_CATEGORY_NAME, selectedCategory.name)
+        val customColors = listOf(
+            Color.parseColor("#E17055"),
+            Color.parseColor("#00B894"),
+            Color.parseColor("#E84393"),
+            Color.parseColor("#6C5CE7"),
+            Color.parseColor("#0984E3")
+        )
+
+        val prefs = getSharedPreferences(CustomCategoryActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        val rawJson = prefs.getString(CustomCategoryActivity.KEY_CUSTOM_CATEGORIES, null)
+        if (!rawJson.isNullOrEmpty()) {
+            try {
+                val jsonArray = JSONArray(rawJson)
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    val id = obj.optString("id", "custom_$i")
+                    val name = obj.optString("name", "Custom Deck")
+                    val wordsJson = obj.optJSONArray("words")
+                    val wordsList = ArrayList<String>()
+                    if (wordsJson != null) {
+                        for (j in 0 until wordsJson.length()) {
+                            wordsList.add(wordsJson.getString(j))
+                        }
+                    }
+                    val color = customColors[i % customColors.size]
+                    categories.add(
+                        Category(
+                            id = id,
+                            name = name,
+                            iconResId = R.drawable.ic_custom,
+                            backgroundColor = color,
+                            customWords = wordsList
+                        )
+                    )
+                }
+            } catch (e: Exception) {
             }
-            startActivity(intent)
         }
+
+        return categories
     }
 }
