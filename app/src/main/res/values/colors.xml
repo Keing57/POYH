@@ -12,4 +12,10 @@
     <color name="button_secondary_bg">#212547</color>
     <color name="feedback_correct">#2ECC71</color>
     <color name="feedback_pass">#E74C3C</color>
+    <color name="gradient_start">#1A103C</color>
+    <color name="gradient_center">#0F1123</color>
+    <color name="gradient_end">#080914</color>
+    <color name="card_gradient_start">#2A2F5B</color>
+    <color name="card_gradient_end">#1C1F3E</color>
+    <color name="card_stroke">#3F4778</color>
 </resources>

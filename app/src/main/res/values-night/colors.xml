@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#7C6CF8</color>
+    <color name="primary_dark">#5843E0</color>
+    <color name="primary_light">#A29BFE</color>
+    <color name="accent">#00CEC9</color>
+    <color name="background">#121212</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#D0D0D0</color>
+    <color name="button_secondary_stroke">#333333</color>
+    <color name="button_secondary_bg">#1E1E1E</color>
+    <color name="feedback_correct">#2ECC71</color>
+    <color name="feedback_pass">#E74C3C</color>
+    <color name="gradient_start">#1F1F1F</color>
+    <color name="gradient_center">#121212</color>
+    <color name="gradient_end">#000000</color>
+    <color name="card_gradient_start">#2A2A2A</color>
+    <color name="card_gradient_end">#1E1E1E</color>
+    <color name="card_stroke">#383838</color>
+</resources>
